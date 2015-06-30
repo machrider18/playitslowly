@@ -7,18 +7,18 @@ Author: Jonas Wagner
 Play it slowly
 Copyright (C) 2009 - 2012 Jonas Wagner
 
-This program is free software: you can redistribute it and/or modify
-it under the terms of the GNU General Public License as published by
-the Free Software Foundation, either version 3 of the License, or
-(at your option) any later version.
+Este programa es software libre: puedes redistribuirlo y/o modificarlo
+bajo los terminos de la licencia publica GNU tal como está publicado por
+la Free Software Foundation, en su versión 3 de la licencia, o
+(a tu opción) en cualquier nueva versión.
 
-This program is distributed in the hope that it will be useful,
-but WITHOUT ANY WARRANTY; without even the implied warranty of
-MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
-GNU General Public License for more details.
+Este programa es distribuido con la finalidad de que sea util,
+pero SIN NINGUNA GARANTIA; sin ninguna garantia que implique
+MERCANTIBILIDAD o que se ajuste a un propósito particular.  Vea la
+licencia publica general del GNU para mas detalles..
 
-You should have received a copy of the GNU General Public License
-along with this program.  If not, see <http://www.gnu.org/licenses/>.
+Debes haber recibido una copia de la GNU General Public License
+adjunta a este programa  En caso de que no sea asi, vea <http://www.gnu.org/licenses/>.
 """
 
 import getopt
@@ -151,10 +151,10 @@ class MainWindow(gtk.Window):
         self.vbox.pack_start(filechooserhbox)
         self.vbox.pack_start(self.positionchooser)
         self.vbox.pack_start(mygtk.form([(_(u"Speed (times)"), self.speedchooser),
-            (_(u"Pitch (semitones)"), self.pitchchooser),
-            (_(u"Fine Pitch (cents)"), self.pitchchooser_fine),
-            (_(u"Start Position (seconds)"), self.startchooser),
-            (_(u"End Position (seconds)"), self.endchooser)
+            (_(u"Tono (semitonos)"), self.pitchchooser),
+            (_(u"Afinar tono (centesimas)"), self.pitchchooser_fine),
+            (_(u"Posición inicial (segundos)"), self.startchooser),
+            (_(u"Posición final (segundos)"), self.endchooser)
         ]), False, False)
 
         buttonbox = gtk.HButtonBox()
@@ -228,7 +228,7 @@ class MainWindow(gtk.Window):
 
 
     def show_recent(self, sender=None):
-        dialog = gtk.RecentChooserDialog(_("Recent Files"), self, None,
+        dialog = gtk.RecentChooserDialog(_("Archivos recientes"), self, None,
                 (gtk.STOCK_CANCEL, gtk.RESPONSE_CANCEL,
                  gtk.STOCK_OPEN, gtk.RESPONSE_OK))
 
@@ -271,20 +271,20 @@ class MainWindow(gtk.Window):
 
     def load_file_settings(self, filename):
         self.add_recent(filename)
-        if not self.config or not filename in self.config["files"]:
+        if not self.config or not filename in self.config["Archivos"]:
             self.reset_settings()
             self.pipeline.set_file(self.filedialog.get_uri())
             self.pipeline.pause()
             gobject.timeout_add(100, self.update_position)
             return
-        settings = self.config["files"][filename]
-        self.speedchooser.set_value(settings["speed"])
-        self.set_pitch(settings["pitch"])
-        self.startchooser.get_adjustment().set_property("upper", settings["duration"])
+        settings = self.config["Archivo"][filename]
+        self.speedchooser.set_value(settings["Velocidad"])
+        self.set_pitch(settings["Tono"])
+        self.startchooser.get_adjustment().set_property("upper", settings["duración"])
         self.startchooser.set_value(settings["start"])
-        self.endchooser.get_adjustment().set_property("upper", settings["duration"] or 1.0)
-        self.endchooser.set_value(settings["end"])
-        self.volume_button.set_value(settings["volume"])
+        self.endchooser.get_adjustment().set_property("upper", settings["duración"] or 1.0)
+        self.endchooser.set_value(settings["final"])
+        self.volume_button.set_value(settings["volumen"])
 
     def save_config(self):
         """saves the config file with a delay"""
@@ -296,15 +296,15 @@ class MainWindow(gtk.Window):
     def save_config_now(self):
         self.config_saving = False
         lastfile = self.filedialog.get_uri()
-        self.config["lastfile"] = lastfile
+        self.config["reciente"] = lastfile
         settings = {}
-        settings["speed"] = self.speedchooser.get_value()
-        settings["pitch"] = self.get_pitch()
-        settings["duration"] = self.startchooser.get_adjustment().get_property("upper")
-        settings["start"] = self.startchooser.get_value()
-        settings["end"] = self.endchooser.get_value()
-        settings["volume"] = self.volume_button.get_value()
-        self.config.setdefault("files", {})[lastfile] = settings
+        settings["Velocidad"] = self.speedchooser.get_value()
+        settings["Tono"] = self.get_pitch()
+        settings["Duración"] = self.startchooser.get_adjustment().get_property("upper")
+        settings["Comienzo"] = self.startchooser.get_value()
+        settings["Final"] = self.endchooser.get_value()
+        settings["Volumen"] = self.volume_button.get_value()
+        self.config.setdefault("Archivo", {})[lastfile] = settings
 
         self.config.save()
 
@@ -322,7 +322,7 @@ class MainWindow(gtk.Window):
         self.save_config()
 
     def save(self, sender):
-        dialog = mygtk.FileChooserDialog(_(u"Save modified version as"),
+        dialog = mygtk.FileChooserDialog(_(u"Guardar versión modificada como"),
                 self, gtk.FILE_CHOOSER_ACTION_SAVE)
         dialog.set_current_name("export.wav")
         if dialog.run() == gtk.RESPONSE_OK:
@@ -439,7 +439,7 @@ class MainWindow(gtk.Window):
         return self.play_button.get_active()
 
     def about(self, sender):
-        """show an about dialog"""
+        """Muestra un dialogo acerca del prgrama"""
         about = gtk.AboutDialog()
         about.set_transient_for(self)
         about.set_logo(mygtk.iconfactory.get_icon("playitslowly", 128))
@@ -452,15 +452,19 @@ class MainWindow(gtk.Window):
         about.set_website_label(WEBSITE)
         about.set_license("""
 Copyright (C) 2009 - 2011 Jonas Wagner
-This program is free software; you can redistribute it and/or modify
-it under the terms of the GNU General Public License as published by
-the Free Software Foundation; either version 3 of the License, or
-(at your option) any later version.
 
-This program is distributed in the hope that it will be useful,
-but WITHOUT ANY WARRANTY; without even the implied warranty of
-MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
-GNU General Public License for more details.
+Este programa es software libre: puedes redistribuirlo y/o modificarlo
+bajo los terminos de la licencia publica GNU tal como está publicado por
+la Free Software Foundation, en su versión 3 de la licencia, o
+(a tu opción) en cualquier nueva versión.
+
+Este programa es distribuido con la finalidad de que sea util,
+pero SIN NINGUNA GARANTIA; sin ninguna garantia que implique
+MERCANTIBILIDAD o que se ajuste a un propósito particular.  Vea la
+licencia publica general del GNU para mas detalles..
+
+Debes haber recibido una copia de la GNU General Public License
+adjunta a este programa  En caso de que no sea asi, vea <http://www.gnu.org/licenses/>.
 """)
         about.run()
         about.destroy()
